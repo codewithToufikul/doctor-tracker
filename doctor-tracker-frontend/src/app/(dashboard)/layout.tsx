@@ -39,16 +39,16 @@ export default function DashboardLayout({
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
-      {/* Desktop Sidebar */}
-      <Sidebar />
+      return (
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+        {/* Desktop Sidebar */}
+        <Sidebar />
 
-      {/* Mobile Drawer */}
-      <MobileNav
-        isOpen={mobileNavOpen}
-        onClose={() => setMobileNavOpen(false)}
-      />
+        {/* Mobile Drawer */}
+        <MobileNav
+          isOpen={mobileNavOpen}
+          onClose={() => setMobileNavOpen(false)}
+        />
 
       {/* Main Content Area */}
       <div className="lg:pl-64 flex flex-col flex-1 min-w-0">

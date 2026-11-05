@@ -38,6 +38,7 @@ export const login = async (
       success: true,
       message: 'Login successful.',
       data: {
+        token,
         user: {
           id: admin._id,
           name: admin.name,

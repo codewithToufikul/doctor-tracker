@@ -16,6 +16,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const USER_STORAGE_KEY = 'doctor_tracker_admin_user';
+const TOKEN_STORAGE_KEY = 'doctor_tracker_auth_token';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
@@ -49,10 +50,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUser(null);
         localStorage.removeItem(USER_STORAGE_KEY);
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
       }
     } catch {
       setUser(null);
       localStorage.removeItem(USER_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<void> => {
     try {
-      const response = await apiClient.post<ApiResponse<{ user: User }>>('/auth/login', {
+      const response = await apiClient.post<ApiResponse<{ user: User; token?: string }>>('/auth/login', {
         email,
         password,
       });
@@ -73,6 +76,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const activeUser = response.data.data.user;
         setUser(activeUser);
         localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(activeUser));
+        if (response.data.data.token) {
+          localStorage.setItem(TOKEN_STORAGE_KEY, response.data.data.token);
+        }
         router.push('/dashboard');
       }
     } catch (error) {
@@ -88,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setUser(null);
       localStorage.removeItem(USER_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
       router.push('/login');
     }
   };

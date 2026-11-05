@@ -62,3 +62,4 @@ export default function BottomNav({ onOpenProfile }: { onOpenProfile?: () => voi
     </nav>
   );
 }
+

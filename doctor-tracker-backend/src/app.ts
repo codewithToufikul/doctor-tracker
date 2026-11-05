@@ -9,10 +9,36 @@ import { NotFoundError } from './utils/AppError.js';
 
 export const app = express();
 
+app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(
   cors({
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const normalizedOrigin = origin.replace(/\/+$/, '');
+      const configuredFrontend = env.FRONTEND_URL?.replace(/\/+$/, '');
+      
+      const allowedPatterns = [
+        configuredFrontend,
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'https://doctortracker.dopain.tech',
+      ];
+
+      const isAllowed =
+        allowedPatterns.includes(normalizedOrigin) ||
+        normalizedOrigin.endsWith('.dopain.tech') ||
+        normalizedOrigin.endsWith('.vercel.app') ||
+        normalizedOrigin.endsWith('.netlify.app') ||
+        normalizedOrigin.endsWith('.onrender.com');
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
