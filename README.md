@@ -57,3 +57,4 @@ npm run dev        # Starts Next.js app on http://localhost:3000
 
 ## 📋 Architectural Plan
 See [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for full technical design details, data models, API specifications, and the phased roadmap.
+
