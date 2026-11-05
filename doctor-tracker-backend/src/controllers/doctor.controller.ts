@@ -10,6 +10,7 @@ import {
   escapeRegex,
 } from '../utils/queryBuilder.js';
 import { CreateDoctorInput, UpdateDoctorInput } from '../validations/doctor.validation.js';
+import { CreatePatientInput } from '../validations/patient.validation.js';
 
 export const getDoctors = async (
   req: Request,
@@ -208,6 +209,170 @@ export const deleteDoctor = async (
       success: true,
       message: 'Doctor deleted successfully.',
       unassignedPatientsCount: updateResult.modifiedCount,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDoctorPatients = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestError('Invalid doctor identifier format');
+    }
+
+    const doctor = await Doctor.findById(id).select('_id name specialization hospital');
+    if (!doctor) {
+      throw new NotFoundError('Doctor record not found');
+    }
+
+    const { page, limit, skip } = parsePagination(req.query);
+    const { search, condition, status, sortBy, sortOrder } = req.query;
+
+    const filter: Record<string, unknown> = {
+      doctorId: new Types.ObjectId(id),
+    };
+
+    if (search && typeof search === 'string') {
+      const sanitized = escapeRegex(search.trim());
+      const searchRegex = new RegExp(sanitized, 'i');
+      filter.$or = [{ name: searchRegex }, { phone: searchRegex }, { email: searchRegex }];
+    }
+
+    if (condition && typeof condition === 'string') {
+      filter.condition = new RegExp(`^${escapeRegex(condition.trim())}$`, 'i');
+    }
+
+    if (status && typeof status === 'string') {
+      filter.status = status;
+    }
+
+    const sortField = typeof sortBy === 'string' ? sortBy : 'createdAt';
+    const sortDirection = sortOrder === 'asc' ? 1 : -1;
+    const sortOptions: Record<string, 1 | -1> = { [sortField]: sortDirection };
+
+    const [patients, totalRecords] = await Promise.all([
+      Patient.find(filter).sort(sortOptions).skip(skip).limit(limit).lean(),
+      Patient.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      doctor: {
+        id: doctor._id,
+        name: doctor.name,
+        specialization: doctor.specialization,
+        hospital: doctor.hospital,
+      },
+      data: patients,
+      pagination: formatPaginationMeta(totalRecords, page, limit),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const addPatientToDoctor = async (
+  req: Request<{ id: string }, unknown, CreatePatientInput>,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestError('Invalid doctor identifier format');
+    }
+
+    const doctor = await Doctor.findById(id);
+    if (!doctor) {
+      throw new NotFoundError('Doctor record not found');
+    }
+
+    const { email, admissionDate, ...patientData } = req.body;
+
+    const patient = await Patient.create({
+      ...patientData,
+      email: email && email.trim() !== '' ? email.trim() : undefined,
+      doctorId: doctor._id,
+      admissionDate: admissionDate ? new Date(admissionDate) : new Date(),
+    });
+
+    res.status(201).json({
+      success: true,
+      message: `Patient successfully registered under Dr. ${doctor.name}.`,
+      data: patient,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const removePatientFromDoctor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id, patientId } = req.params;
+    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(patientId)) {
+      throw new BadRequestError('Invalid identifier format');
+    }
+
+    const doctor = await Doctor.findById(id);
+    if (!doctor) {
+      throw new NotFoundError('Doctor record not found');
+    }
+
+    const patient = await Patient.findOne({
+      _id: patientId,
+      doctorId: doctor._id,
+    });
+
+    if (!patient) {
+      throw new NotFoundError('Patient is not assigned to this doctor');
+    }
+
+    patient.doctorId = null;
+    await patient.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Patient ${patient.name} has been unassigned from Dr. ${doctor.name}.`,
+      data: patient,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deletePatientFromDoctor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id, patientId } = req.params;
+    if (!Types.ObjectId.isValid(id) || !Types.ObjectId.isValid(patientId)) {
+      throw new BadRequestError('Invalid identifier format');
+    }
+
+    const patient = await Patient.findOneAndDelete({
+      _id: patientId,
+      doctorId: new Types.ObjectId(id),
+    });
+
+    if (!patient) {
+      throw new NotFoundError('Patient not found under this doctor');
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Patient record deleted successfully from doctor list.',
     });
   } catch (error) {
     next(error);
