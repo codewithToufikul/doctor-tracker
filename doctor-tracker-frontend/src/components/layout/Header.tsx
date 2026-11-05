@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, Calendar, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -59,34 +60,34 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileNav }) => {
               {idx === breadcrumbs.length - 1 ? (
                 <span className="text-slate-900 font-semibold">{crumb.label}</span>
               ) : (
-                <a
+                  <Link
                   href={crumb.href}
                   className="hover:text-slate-900 transition-colors"
                 >
                   {crumb.label}
-                </a>
-              )}
-            </React.Fragment>
+                </Link>
+          )}
+        </React.Fragment>
           ))}
-        </nav>
-      </div>
+      </nav>
+    </div>
 
-      {/* Right Tools */}
-      <div className="flex items-center gap-4">
-        {/* Date display */}
-        <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-md border border-slate-200/60">
-          <Calendar className="w-3.5 h-3.5 text-slate-400" />
-          <span>{today}</span>
-        </div>
+      {/* Right Tools */ }
+  <div className="flex items-center gap-4">
+    {/* Date display */}
+    <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-md border border-slate-200/60">
+      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+      <span>{today}</span>
+    </div>
 
-        {/* Live Admin Indicator */}
-        <div className="flex items-center gap-2 pl-2 border-l border-slate-200 text-xs text-slate-700">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="hidden sm:inline font-medium text-slate-700">
-            {user?.name || 'Administrator'}
-          </span>
-        </div>
-      </div>
-    </header>
+    {/* Live Admin Indicator */}
+    <div className="flex items-center gap-2 pl-2 border-l border-slate-200 text-xs text-slate-700">
+      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+      <span className="hidden sm:inline font-medium text-slate-700">
+        {user?.name || 'Administrator'}
+      </span>
+    </div>
+  </div>
+    </header >
   );
 };

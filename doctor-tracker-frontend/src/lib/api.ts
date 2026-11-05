@@ -11,6 +11,8 @@ export const apiClient = axios.create({
   },
 });
 
+export const api = apiClient;
+
 export const getApiErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     return error.response?.data?.message || error.message || 'An unexpected error occurred.';
@@ -20,3 +22,5 @@ export const getApiErrorMessage = (error: unknown): string => {
   }
   return 'An unexpected error occurred.';
 };
+
+export default apiClient;

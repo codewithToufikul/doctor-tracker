@@ -15,21 +15,44 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const USER_STORAGE_KEY = 'doctor_tracker_admin_user';
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(USER_STORAGE_KEY);
+        return stored ? JSON.parse(stored) : null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return !localStorage.getItem(USER_STORAGE_KEY);
+    }
+    return true;
+  });
+
   const router = useRouter();
 
   const fetchCurrentUser = useCallback(async () => {
     try {
       const response = await apiClient.get<ApiResponse<{ user: User }>>('/auth/me');
       if (response.data.success && response.data.data?.user) {
-        setUser(response.data.data.user);
+        const activeUser = response.data.data.user;
+        setUser(activeUser);
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(activeUser));
       } else {
         setUser(null);
+        localStorage.removeItem(USER_STORAGE_KEY);
       }
     } catch {
       setUser(null);
+      localStorage.removeItem(USER_STORAGE_KEY);
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +70,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (response.data.success && response.data.data?.user) {
-        setUser(response.data.data.user);
+        const activeUser = response.data.data.user;
+        setUser(activeUser);
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(activeUser));
         router.push('/dashboard');
       }
     } catch (error) {
@@ -59,9 +84,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await apiClient.post('/auth/logout');
     } catch {
-      // Proceed with client cleanup regardless of network status
+      // Proceed with cleanup
     } finally {
       setUser(null);
+      localStorage.removeItem(USER_STORAGE_KEY);
       router.push('/login');
     }
   };

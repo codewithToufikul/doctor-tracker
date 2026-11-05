@@ -38,10 +38,10 @@ npm run seed       # Seeds initial admin, sample doctors and patients
 npm run dev        # Starts REST API on http://localhost:5001
 ```
 
-### 3. Frontend Setup (Coming in Phase 4)
+### 3. Frontend Setup
 ```bash
 cd doctor-tracker-frontend
-cp .env.example .env
+cp .env.example .env.local
 npm install
 npm run dev        # Starts Next.js app on http://localhost:3000
 ```

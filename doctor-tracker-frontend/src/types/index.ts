@@ -19,7 +19,7 @@ export interface Doctor {
 }
 
 export type PatientStatus = 'Active' | 'Under Treatment' | 'Critical' | 'Discharged';
-export type PatientGender = 'male' | 'female' | 'other';
+export type PatientGender = 'Male' | 'Female' | 'Other';
 
 export interface Patient {
   _id: string;
@@ -72,7 +72,7 @@ export interface DashboardOverview {
   dischargedCount: number;
 }
 
-export interface DoctorPatientLoad {
+export interface PatientsPerDoctor {
   doctorId: string;
   doctorName: string;
   specialization: string;
@@ -80,13 +80,21 @@ export interface DoctorPatientLoad {
   patientCount: number;
 }
 
-export interface AdmissionTrendPoint {
+export interface AdmissionTrend {
   date: string;
   admissions: number;
 }
 
-export interface ConditionDistributionItem {
+export interface ConditionDistribution {
   condition: string;
   count: number;
   percentage: number;
 }
+
+/** @deprecated Use PatientsPerDoctor */
+export type DoctorPatientLoad = PatientsPerDoctor;
+/** @deprecated Use AdmissionTrend */
+export type AdmissionTrendPoint = AdmissionTrend;
+/** @deprecated Use ConditionDistribution */
+export type ConditionDistributionItem = ConditionDistribution;
+

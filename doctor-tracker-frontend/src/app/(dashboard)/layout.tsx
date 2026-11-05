@@ -13,7 +13,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
@@ -23,39 +23,39 @@ export default function DashboardLayout({
     }
   }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
-        <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-          Verifying Session Authorization...
-        </p>
-      </div>
-    );
-  }
+    if (isLoading && !user) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+          <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-3" />
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+            Connecting to Clinical Portal...
+          </p>
+        </div>
+      );
+    }
 
-  if (!isAuthenticated) {
-    return null;
-  }
+      if (!isAuthenticated && !user) {
+        return null;
+      }
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* Desktop Sidebar */}
-      <Sidebar />
+      return (
+        <div className="min-h-screen bg-slate-50 flex flex-col">
+          {/* Desktop Sidebar */}
+          <Sidebar />
 
-      {/* Mobile Drawer */}
-      <MobileNav
-        isOpen={mobileNavOpen}
-        onClose={() => setMobileNavOpen(false)}
-      />
+          {/* Mobile Drawer */}
+          <MobileNav
+            isOpen={mobileNavOpen}
+            onClose={() => setMobileNavOpen(false)}
+          />
 
-      {/* Main Content Area */}
-      <div className="lg:pl-64 flex flex-col flex-1 min-w-0">
-        <Header onOpenMobileNav={() => setMobileNavOpen(true)} />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
-}
+          {/* Main Content Area */}
+          <div className="lg:pl-64 flex flex-col flex-1 min-w-0">
+            <Header onOpenMobileNav={() => setMobileNavOpen(true)} />
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+              {children}
+            </main>
+          </div>
+        </div>
+      );
+    }

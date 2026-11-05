@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -67,53 +68,52 @@ export const MobileNav: React.FC<MobileNavProps> = ({ isOpen, onClose }) => {
               const Icon = item.icon;
 
               return (
-                <a
+                  <Link
                   key={item.name}
                   href={item.href}
                   onClick={onClose}
-                  className={`flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-colors ${
-                    isActive
+                  className={`flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-colors ${isActive
                       ? 'bg-slate-800 text-blue-400 font-medium'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-                  }`}
+                    }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-blue-400' : 'text-slate-400'}`} />
                   {item.name}
-                </a>
-              );
+                </Link>
+          );
             })}
-          </nav>
-        </div>
+        </nav>
+      </div>
 
-        {/* Footer */}
-        <div className="pt-4 border-t border-slate-800">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 border border-blue-500/30 text-xs font-semibold">
-              {getInitials(user?.name || 'Admin')}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-medium text-slate-200 truncate">
-                  {user?.name || 'Super Admin'}
-                </span>
-                <ShieldCheck className="w-3 h-3 text-blue-400 shrink-0" />
-              </div>
-              <p className="text-[11px] text-slate-400 truncate">
-                {user?.email || 'admin@doctortracker.io'}
-              </p>
-            </div>
+      {/* Footer */}
+      <div className="pt-4 border-t border-slate-800">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 border border-blue-500/30 text-xs font-semibold">
+            {getInitials(user?.name || 'Admin')}
           </div>
-
-          <button
-            type="button"
-            onClick={logout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg transition-colors"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Sign Out</span>
-          </button>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-medium text-slate-200 truncate">
+                {user?.name || 'Super Admin'}
+              </span>
+              <ShieldCheck className="w-3 h-3 text-blue-400 shrink-0" />
+            </div>
+            <p className="text-[11px] text-slate-400 truncate">
+              {user?.email || 'admin@doctortracker.io'}
+            </p>
+          </div>
         </div>
+
+        <button
+          type="button"
+          onClick={logout}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg transition-colors"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Sign Out</span>
+        </button>
       </div>
     </div>
+    </div >
   );
 };
