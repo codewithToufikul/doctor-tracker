@@ -39,3 +39,8 @@ coverage/
 */coverage/
 
 *.tsbuildinfo
+
+# Assessment & Planning documents
+*.pdf
+IMPLEMENTATION_PLAN.md
+
