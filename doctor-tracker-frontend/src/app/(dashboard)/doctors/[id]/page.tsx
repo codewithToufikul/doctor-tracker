@@ -216,7 +216,7 @@ import type { Doctor, Patient } from "@/types";
                       <tbody className="divide-y divide-slate-100">
                         {patientsLoading ? (
                           <TableSkeleton cols={5} rows={5} />
-                        ) : !patientsData?.patients.length ? (
+                        ) : !patientsData?.patients || patientsData.patients.length === 0 ? (
                           <tr>
                             <td colSpan={5}>
                               <EmptyState
@@ -266,7 +266,7 @@ import type { Doctor, Patient } from "@/types";
                     </table>
                   </div>
 
-                  {patientsData?.pagination && patientsData.pagination.totalPages > 1 && (
+                  {patientsData?.pagination && patientsData.pagination.totalRecords > 0 && (
                     <DataTablePagination
                       pagination={patientsData.pagination}
                       limit={limit}

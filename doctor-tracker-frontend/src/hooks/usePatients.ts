@@ -15,17 +15,15 @@ interface PatientsParams {
   sortOrder?: "asc" | "desc";
 }
 
-interface PatientsResponse {
-  patients: Patient[];
-  pagination: PaginationMeta;
-}
-
 export function usePatients(params: PatientsParams = {}) {
   return useQuery({
     queryKey: ["patients", params],
     queryFn: async () => {
-      const { data } = await api.get<{ data: PatientsResponse }>("/patients", { params });
-      return data.data;
+      const { data } = await api.get<{ data: Patient[]; pagination: PaginationMeta }>("/patients", { params });
+      return {
+        patients: data.data ?? [],
+        pagination: data.pagination,
+      };
     },
   });
 }
@@ -50,6 +48,7 @@ export function useCreatePatient() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
   });
 }
@@ -63,6 +62,7 @@ export function useUpdatePatient() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
   });
 }
@@ -79,4 +79,3 @@ export function useDeletePatient() {
     },
   });
 }
-

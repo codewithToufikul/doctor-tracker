@@ -185,7 +185,7 @@ export default function PatientsPage() {
                   <tbody className="divide-y divide-slate-100">
                     {isLoading ? (
                       <TableSkeleton cols={8} rows={limit} />
-                    ) : !data?.patients.length ? (
+                    ) : !data?.patients || data.patients.length === 0 ? (
                       <tr>
                         <td colSpan={8}>
                           <EmptyState
@@ -256,7 +256,7 @@ export default function PatientsPage() {
                 </table>
               </div>
 
-              {data?.pagination && data.pagination.totalPages > 1 && (
+              {data?.pagination && data.pagination.totalRecords > 0 && (
                 <DataTablePagination
                   pagination={data.pagination}
                   limit={limit}

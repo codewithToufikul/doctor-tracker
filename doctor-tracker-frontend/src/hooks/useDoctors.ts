@@ -13,22 +13,15 @@ interface DoctorsParams {
   sortOrder?: "asc" | "desc";
 }
 
-interface DoctorsResponse {
-  doctors: Doctor[];
-  pagination: PaginationMeta;
-}
-
-interface DoctorPatientsResponse {
-  patients: Patient[];
-  pagination: PaginationMeta;
-}
-
 export function useDoctors(params: DoctorsParams = {}) {
   return useQuery({
     queryKey: ["doctors", params],
     queryFn: async () => {
-      const { data } = await api.get<{ data: DoctorsResponse }>("/doctors", { params });
-      return data.data;
+      const { data } = await api.get<{ data: Doctor[]; pagination: PaginationMeta }>("/doctors", { params });
+      return {
+        doctors: data.data ?? [],
+        pagination: data.pagination,
+      };
     },
   });
 }
@@ -48,8 +41,11 @@ export function useDoctorPatients(id: string, params: DoctorsParams = {}) {
   return useQuery({
     queryKey: ["doctors", id, "patients", params],
     queryFn: async () => {
-      const { data } = await api.get<{ data: DoctorPatientsResponse }>(`/doctors/${id}/patients`, { params });
-      return data.data;
+      const { data } = await api.get<{ data: Patient[]; pagination: PaginationMeta }>(`/doctors/${id}/patients`, { params });
+      return {
+        patients: data.data ?? [],
+        pagination: data.pagination,
+      };
     },
     enabled: !!id,
   });
@@ -59,8 +55,8 @@ export function useAllDoctors() {
   return useQuery({
     queryKey: ["doctors", "all"],
     queryFn: async () => {
-      const { data } = await api.get<{ data: DoctorsResponse }>("/doctors", { params: { limit: 200 } });
-      return data.data.doctors;
+      const { data } = await api.get<{ data: Doctor[] }>("/doctors", { params: { limit: 200 } });
+      return data.data ?? [];
     },
     staleTime: 60_000,
   });
@@ -115,6 +111,7 @@ export function useAddPatientToDoctor() {
     onSuccess: (_data, { doctorId }) => {
       queryClient.invalidateQueries({ queryKey: ["doctors", doctorId, "patients"] });
       queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
   });
 }
@@ -128,6 +125,7 @@ export function useRemovePatientFromDoctor() {
     onSuccess: (_data, { doctorId }) => {
       queryClient.invalidateQueries({ queryKey: ["doctors", doctorId, "patients"] });
       queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
   });
 }
@@ -141,7 +139,7 @@ export function useDeletePatientFromDoctor() {
     onSuccess: (_data, { doctorId }) => {
       queryClient.invalidateQueries({ queryKey: ["doctors", doctorId, "patients"] });
       queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
     },
   });
 }
-
